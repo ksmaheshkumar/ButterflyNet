@@ -14,7 +14,7 @@ ButterflyNet was designed for a few main reasons:
   - Twisted is a clusterfuck.
   - asyncio networking is good, but it's very hands-off - ButterflyNet comes with everything needed for a full networking suite.
   
-All the existing libraries are not, by design, secure. ButterflyNet forces TLS with secure settings on your
+All the existing libraries are not, by design, secure. You can work around this with SSLContexts - however, ButterflyNet forces TLS with secure settings on your server by default.
   
 ### Getting started
 
