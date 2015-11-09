@@ -6,6 +6,8 @@ import asyncio
 import logging
 import types
 
+import re
+
 import Butterfly
 
 
@@ -35,16 +37,19 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
         self.loop = loop
         self.port = port
         self.ip = ip
-        self.handler = None
+        self.bf_handler = None
         self.server = server
+
+        self.handlers = []
 
         self.logger = logging.getLogger("ButterflyNet")
 
         self.logger.info("Net running on {}:{}.".format(ip, port))
 
 
-    def _set_handler(self, handler):
-        self.handler = handler
+    def _set_bf_hander(self, handler):
+        self.bf_handler = handler
+
 
     @asyncio.coroutine
     def handle(self, butterfly: Butterfly):
@@ -55,7 +60,7 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
         :param butterfly: The butterfly to use for handling.
         """
         # Enter an infinite loop.
-        self.logger.debug("Dropped into handler for new client")
+        self.logger.debug("Dropped into default handler for new client")
         while True:
             data = yield from butterfly.read()
             if not data:
@@ -66,6 +71,7 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
 
         self.logger.info("Client {}:{} disconnected.".format(*butterfly._writer.get_extra_info("peername")))
 
+
     def _default_handler(self, butterfly: Butterfly, data: bytes):
         """
         This is an example handler. It does nothing.
@@ -73,14 +79,56 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
         :param data: The data to be passed in.
         :return: Nothing
         """
-        self.logger.warning()
+        self.logger.warning("Uncollected message! {}".format(data))
 
-    def set_default_data_handler(self, handler: types.FunctionType):
+    @classmethod
+    def set_default_data_handler(cls, handler: types.FunctionType):
         """
         Set a new default data handler - one to be dropped to if nothing else matches.
 
         By default this just passes.
-        :param handler:
-        :return:
+
+        This is a *classmethod* - this will set it on the class instead of the instance.
+        :param handler: Any callable to use as a handler.
         """
-        self._default_handler = handler
+        cls._default_handler = handler
+
+
+    # Begin helper decorators
+
+    def regexp_match(self, regexp: str):
+        # Real decorator here.
+        def real_decorator(func: types.FunctionType):
+            # Compile the regexp pattern.
+            pattern = re.compile(regexp)
+
+            # Create a match function.
+            def match(data: bytes):
+                # Match it - if it works, return the func. Else, return None.
+                data = data.decode()
+                if pattern.match(data):
+                    return func
+                else:
+                    return None
+
+
+            self.handlers.append(match)
+            return func
+
+
+        return real_decorator
+
+
+    def prefix_match(self, prefix: str, start=None, end=None):
+        def real_decorator(func: types.FunctionType):
+            def match(data: bytes):
+                data = data.decode()
+                if data.startswith(prefix=prefix, start=start, end=end):
+                    return func
+                else:
+                    return None
+
+
+            self.handlers.append(match)
+            return func
+        return real_decorator

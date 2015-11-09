@@ -2,42 +2,129 @@ import asyncio
 import logging
 
 
-class Butterfly(object):
+class Butterfly(asyncio.Protocol):
     """
     A butterfly represents a client object that has connected to your server.
 
-    It exposes a bunch of useful properties:
-        - The IP/Port of the connected client
-        - The streamreader/streamwriter for the client
-
-    This is just a base class. It is HIGHLY recommended you extend this class with your own methods.
+    This will automatically call the appropriate methods in your handler, and set information about ourselves.
     """
-    def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter,
-                    handler, bufsize):
-        self._reader = reader
-        self._writer = writer
-        self.handler = handler
+    def __init__(self, handler, bufsize, loop: asyncio.AbstractEventLoop):
+        """
+        Create a new butterfly.
+        :param handler: The :class:`ButterflyHandler` to set as our handler.
+        :param bufsize: The buffersize to use for reading.
+        :param loop: The :class:`asyncio.BaseEventLoop` to use.
+        """
+        self._loop = loop
+        self._handler = handler
         self._bufsize = bufsize
+        # Create our Streams.
+        self._streamreader = asyncio.StreamReader(loop=self._loop)
+        self._streamwriter = None
+
+        self._transport = None
+
+        # Attributes.
+        self.ip = None
+        self.client_port = None
+
+        self.should_handle = False
+        self.logger = logging.getLogger("ButterflyNet")
+        self.logger.setLevel(self._handler.log_level)
+
+
+    def connection_made(self, transport: asyncio.Transport):
+        """
+        Called upon a connection being made.
+
+        This will automatically call your BFHandler.on_connection().
+        :param transport: The transport to set the streamreader/streamwriter to.
+        """
+        self._transport = transport
+        self.ip, self.client_port = transport.get_extra_info("peername")
+        self.logger.info("Recieved connection from {}:{}".format(*transport.get_extra_info("peername")))
+        self._streamreader.set_transport(transport)
+        self._streamwriter = asyncio.StreamWriter(transport, self, self._streamreader, self._loop)
+        # Call our handler.
+        res = self._handler.on_connection(self)
+
+        if asyncio.coroutines.iscoroutine(res):
+            self._loop.create_task(res)
+
+
+    def connection_lost(self, exc):
+        """
+        Called upon a connection being lost.
+
+        This will automatically call your BFHandler.on_disconnect().
+        :param exc: The exception data from asyncio.
+        """
+        self.logger.info("Lost connection from {}:{}".format(self.ip, self.client_port))
+        if exc is None:
+            self._streamreader.feed_eof()
+        else:
+            self._streamreader.set_exception(exc)
+        super().connection_lost(exc)
+        # Call our handler.
+        res = self._handler.on_disconnect(self)
+        if asyncio.coroutines.iscoroutine(res):
+            self._loop.create_task(res)
+
+
+    def flip_should_handle(self) -> bool:
+        """
+        Flip the set_handle boolean.
+        """
+        self.should_handle = not self.should_handle
+        return self.should_handle
+
+
+    def data_received(self, data: bytes):
+        """
+        Called upon data received.
+
+        This will only automatically call your Net.handle() method IF your `should_handle` attribute on the butterfly is True.
+
+        Otherwise, it will simply pass your data into the StreamReader.
+        :param data: The data to handle.
+        """
+        self.logger.debug("Recieved data: {}".format(data))
+        self._streamreader.feed_data(data)
+        if self.should_handle:
+            self.flip_should_handle()
+            res = self._handler.net.handle(self)
+            if asyncio.iscoroutine(res):
+                self._loop.create_task(res)
+
+
+    def eof_received(self):
+        """
+        Called upon EOF recieved.
+        """
+        self._streamreader.feed_eof()
+        return True
+
 
     @asyncio.coroutine
     def read(self) -> bytes:
         """
-        Read data off the stream.
-        :return: Bytes containing the data read.
+        Read in data from the Butterfly.
+        :return: Bytes containing data from the butterfly.
         """
-        data = yield from self._reader.read(self._bufsize)
-        return data
+        return (yield from self._streamreader.read())
+
 
     @asyncio.coroutine
     def drain(self):
-        yield from self._writer.drain()
+        """
+        Drain the writer.
+        """
+        return (yield from self._streamwriter.drain())
+
 
     def write(self, data: bytes):
         """
-        Write some data to the stream.
-        :param data: The data to write.
+        Write to the butterfly.
+        :param data: The byte data to write.
         """
-        self._writer.write(data)
-
-
-
+        self._streamwriter.write(data)

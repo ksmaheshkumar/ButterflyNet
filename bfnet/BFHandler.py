@@ -1,9 +1,8 @@
 import asyncio
+from concurrent import futures
 import ssl
-
 import _ssl
 import types
-
 from bfnet.Net import Net
 from bfnet.Butterfly import Butterfly
 import logging
@@ -23,12 +22,12 @@ class ButterflyHandler(object):
 
 
     def __init__(self, event_loop: asyncio.AbstractEventLoop, ssl_context: ssl.SSLContext = None,
-            loglevel: int = logging.DEBUG, butterfly_factory=None, buffer_size: int = asyncio.streams._DEFAULT_LIMIT):
+            loglevel: int = logging.DEBUG, buffer_size: int = asyncio.streams._DEFAULT_LIMIT):
         """
-        TODO: Add better constructor.
         :param event_loop: The :class:`asyncio.BaseEventLoop` to use for the server.
         :param ssl_context: The :class:`ssl.SSLContext` to use for the server.
         :param loglevel: The logging level to use.
+        :param buffer_size: The buffer size to use.
         """
         self._event_loop = event_loop
         self._server = None
@@ -53,63 +52,62 @@ class ButterflyHandler(object):
 
         self._bufsize = buffer_size
 
+        self._executor = futures.ThreadPoolExecutor()
+
         self.net = None
+        self.log_level = loglevel
         self.logger = logging.getLogger("ButterflyNet")
         self.logger.setLevel(loglevel)
         if self.logger.level >= logging.DEBUG:
             self._event_loop.set_debug(True)
 
-
-    @asyncio.coroutine
-    def _inbound_data_cb(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-        """
-        Internal callback used for an initial connection from the server.
-
-        Do not touch.
-        :param reader: The :class:`asyncio.StreamReader` object called back.
-        :param writer: The :class:`asyncio.StreamWriter` object called back.
-        :return: Nothing.
-        """
-        self.logger.info("Recieved new connection from {}:{}".format(*writer.get_extra_info("peername")))
-        # Create a new butterfly.)
-        our_butterfly = self.butterfly_factory(reader, writer)
-        yield from self.on_connection(our_butterfly)
-        yield from self.net.handle(our_butterfly)
-        yield from self.on_disconnect(our_butterfly)
+        self.butterflies = {}
 
 
     @asyncio.coroutine
     def on_connection(self, butterfly: Butterfly):
         """
-        Stub for an on_disconnect event.
+        Stub for an on_connection event.
+
+        This method is a coroutine.
         :param butterfly: The butterfly object created.
-        :return:
         """
-        ...
+        # Create a new entry in our butterfly table.
+        self.butterflies["{}:{}".format(butterfly.ip, butterfly.client_port)] = butterfly
 
 
     @asyncio.coroutine
     def on_disconnect(self, butterfly: Butterfly):
         """
         Stub for an on_disconnect event.
+
+        This method is a coroutine.
         :param butterfly: The butterfly object created.
-        :return:
         """
-        ...
+        s = "{}:{}".format(butterfly.ip, butterfly.client_port)
+        if s in self.butterflies:
+            self.butterflies.pop(s)
 
 
-    def butterfly_factory(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> Butterfly:
+    def async_func(self, fun: types.FunctionType) -> asyncio.Future:
         """
-        This is the default factory for Butterfly objects.
+        Turns a blocking function into an async function by running it inside an executor.
 
-        This will take in a reader and writer pair, and generate a butterfly object from it.
-
-        If you need custom data or a custom class, override this method and use your own instead.
-        :param reader: The :class:`asyncio.StreamReader` object called back.
-        :param writer: The :class:`asyncio.StreamWriter` object called back.
-        :return: A new :class:`Butterfly` object.
+        This executor is by default a :class:`~concurrent.futures.ThreadPoolExecutor`.
+        :param fun: The function to run async.
+            If you wish to pass parameters to this func, use functools.partial (https://docs.python.org/3/library/functools.html#functools.partial).
+        :return: A :class:`~asyncio.Future` object for the function.
         """
-        return Butterfly(reader, writer, self, self._bufsize)
+        future = self._event_loop.run_in_executor(self._executor, fun)
+        return future
+
+
+    def set_executor(self, executor: futures.Executor):
+        """
+        Set the default executor for use with async_func.
+        :param executor: A :class:`~concurrent.futures.Executor` to set as the executor.
+        """
+        self._executor = executor
 
 
     def _load_ssl(self, ssl_options: tuple):
@@ -124,15 +122,27 @@ class ButterflyHandler(object):
 
     @classmethod
     def get_handler(cls, loop: asyncio.AbstractEventLoop = None, ssl_context: ssl.SSLContext = None,
-            log_level: int = logging.INFO, butterfly_factory: types.FunctionType = None,
-            buffer_size: int = asyncio.streams._DEFAULT_LIMIT):
+            log_level: int = logging.INFO, buffer_size: int = asyncio.streams._DEFAULT_LIMIT):
         """
         Get the instance of the handler currently running.
+
+        :param loop: The :class:`asyncio.BaseEventLoop` to use for the server.
+        :param ssl_context: The :class:`ssl.SSLContext` to use for the server.
+        :param log_level: The logging level to use.
+        :param buffer_size: The buffer size to use.
         """
         if not cls.instance:
-            cls.instance = cls(loop, ssl_context, log_level, butterfly_factory, buffer_size)
+            cls.instance = cls(loop, ssl_context, log_level, buffer_size)
         return cls.instance
 
+    def butterfly_factory(self):
+        """
+        Create a new :class:`Butterfly` instance.
+
+        If you use a different Butterfly class, override this and return your own here.
+        :return:
+        """
+        return Butterfly(loop=self._event_loop, bufsize=self._bufsize, handler=self)
 
     @asyncio.coroutine
     def create_server(self, bind_options: tuple, ssl_options: tuple) -> Net:
@@ -151,16 +161,12 @@ class ButterflyHandler(object):
         # Load SSL.
         self._load_ssl(ssl_options)
 
-        # Create a factory for streamreaders.
-        def factory():
-            reader = asyncio.StreamReader(limit=2 ** 16, loop=self._event_loop)
-            protocol = asyncio.StreamReaderProtocol(reader, self._inbound_data_cb, loop=self._event_loop)
-            return protocol
-
-
         # Create the server.
         host, port = bind_options
-        self._server = yield from self._event_loop.create_server(factory, host=host, port=port, ssl=self._ssl)
+        self._server = yield from self._event_loop.create_server(
+            self.butterfly_factory, host=host, port=port,
+            ssl=self._ssl)
+        # Create the Net.
         self.net = Net(ip=host, port=port, loop=self._event_loop, server=self._server)
-        self.net._set_handler(self)
+        self.net._set_bf_hander(self)
         return self.net
