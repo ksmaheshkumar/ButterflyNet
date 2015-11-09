@@ -111,7 +111,7 @@ class Butterfly(asyncio.Protocol):
         Read in data from the Butterfly.
         :return: Bytes containing data from the butterfly.
         """
-        return (yield from self._streamreader.read())
+        return (yield from self._streamreader.read(self._bufsize))
 
 
     @asyncio.coroutine

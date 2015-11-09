@@ -47,7 +47,7 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
         self.logger.info("Net running on {}:{}.".format(ip, port))
 
 
-    def _set_bf_hander(self, handler):
+    def _set_bf_handler(self, handler):
         self.bf_handler = handler
 
 
@@ -66,12 +66,9 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
             if not data:
                 break
             else:
-                self.logger.debug("Recieved data: {}".format(data))
                 yield from self._default_handler(butterfly, data)
 
-        self.logger.info("Client {}:{} disconnected.".format(*butterfly._writer.get_extra_info("peername")))
-
-
+    @asyncio.coroutine
     def _default_handler(self, butterfly: Butterfly, data: bytes):
         """
         This is an example handler. It does nothing.

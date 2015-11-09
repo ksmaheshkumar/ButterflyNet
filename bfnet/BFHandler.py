@@ -74,6 +74,8 @@ class ButterflyHandler(object):
         """
         # Create a new entry in our butterfly table.
         self.butterflies["{}:{}".format(butterfly.ip, butterfly.client_port)] = butterfly
+        # Flip the should_handle value to allow our handler to work.
+        butterfly.flip_should_handle()
 
 
     @asyncio.coroutine
@@ -168,5 +170,5 @@ class ButterflyHandler(object):
             ssl=self._ssl)
         # Create the Net.
         self.net = Net(ip=host, port=port, loop=self._event_loop, server=self._server)
-        self.net._set_bf_hander(self)
+        self.net._set_bf_handler(self)
         return self.net
