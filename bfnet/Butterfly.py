@@ -49,7 +49,7 @@ class Butterfly(asyncio.Protocol):
         res = self._handler.on_connection(self)
 
         if asyncio.coroutines.iscoroutine(res):
-            self._loop.create_task(res)
+            yield from res
 
 
     def connection_lost(self, exc):
@@ -68,7 +68,7 @@ class Butterfly(asyncio.Protocol):
         # Call our handler.
         res = self._handler.on_disconnect(self)
         if asyncio.coroutines.iscoroutine(res):
-            self._loop.create_task(res)
+            yield from res
 
 
     def flip_should_handle(self) -> bool:
@@ -94,8 +94,7 @@ class Butterfly(asyncio.Protocol):
             self.flip_should_handle()
             res = self._handler.net.handle(self)
             if asyncio.iscoroutine(res):
-                self._loop.create_task(res)
-
+                yield from res
 
     def eof_received(self):
         """
