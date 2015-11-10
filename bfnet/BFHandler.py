@@ -58,7 +58,7 @@ class ButterflyHandler(object):
         self.log_level = loglevel
         self.logger = logging.getLogger("ButterflyNet")
         self.logger.setLevel(loglevel)
-        if self.logger.level >= logging.DEBUG:
+        if self.logger.level <= logging.DEBUG:
             self._event_loop.set_debug(True)
 
         self.butterflies = {}
