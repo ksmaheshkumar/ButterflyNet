@@ -26,6 +26,7 @@ def main():
 
 
     @my_server.any_data
+    @asyncio.coroutine
     def echo(data: bytes, butterfly: Butterfly, handler: ButterflyHandler):
         butterfly.write(data)
 

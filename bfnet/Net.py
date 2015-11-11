@@ -143,3 +143,11 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
             self.handlers.append(match)
             return func
         return real_decorator
+
+
+# Questioning my class declaration list:
+# <_habnabit> class Net(....__class__.__class__.__base__):
+# <_habnabit> what
+
+# <ironfroggy> what the hell is that
+# <ironfroggy> SunDwarf: you should feel ashamed.
