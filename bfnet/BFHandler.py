@@ -69,13 +69,15 @@ class ButterflyHandler(object):
         """
         Stub for an on_connection event.
 
+        This will call the data handler, and save the result.
+
         This method is a coroutine.
         :param butterfly: The butterfly object created.
         """
+        # Begin handling.
+        handler = self.begin_handling(butterfly)
         # Create a new entry in our butterfly table.
-        self.butterflies["{}:{}".format(butterfly.ip, butterfly.client_port)] = butterfly
-        # Flip the should_handle value to allow our handler to work.
-        butterfly.flip_should_handle()
+        self.butterflies["{}:{}".format(butterfly.ip, butterfly.client_port)] = (butterfly, handler)
 
 
     @asyncio.coroutine
@@ -83,12 +85,28 @@ class ButterflyHandler(object):
         """
         Stub for an on_disconnect event.
 
+        This will kill the data handler.
+
         This method is a coroutine.
         :param butterfly: The butterfly object created.
         """
         s = "{}:{}".format(butterfly.ip, butterfly.client_port)
         if s in self.butterflies:
-            self.butterflies.pop(s)
+            bf = self.butterflies.pop(s)
+            # These are here by default - don't call super() if you modify the butterfly dict!
+            assert isinstance(bf, tuple)
+            assert len(bf) == 2
+            bf[1].cancel()
+
+
+    def begin_handling(self, butterfly: Butterfly):
+        """
+        Begin the handler loop and start handling data that flows in.
+
+        This will schedule the Net's handle() coroutine to run soon.
+        :return A Future object for the handle() coroutine.
+        """
+        return self._event_loop.create_task(self.net.handle(butterfly))
 
 
     def async_func(self, fun: types.FunctionType) -> asyncio.Future:
@@ -137,6 +155,7 @@ class ButterflyHandler(object):
             cls.instance = cls(loop, ssl_context, log_level, buffer_size)
         return cls.instance
 
+
     def butterfly_factory(self):
         """
         Create a new :class:`Butterfly` instance.
@@ -144,7 +163,10 @@ class ButterflyHandler(object):
         If you use a different Butterfly class, override this and return your own here.
         :return:
         """
-        return Butterfly(loop=self._event_loop, bufsize=self._bufsize, handler=self)
+        bf = Butterfly(loop=self._event_loop, bufsize=self._bufsize, handler=self)
+        print("New bf", bf)
+        return bf
+
 
     @asyncio.coroutine
     def create_server(self, bind_options: tuple, ssl_options: tuple) -> Net:
@@ -165,8 +187,7 @@ class ButterflyHandler(object):
 
         # Create the server.
         host, port = bind_options
-        self._server = yield from self._event_loop.create_server(
-            self.butterfly_factory, host=host, port=port,
+        self._server = yield from self._event_loop.create_server(self.butterfly_factory, host=host, port=port,
             ssl=self._ssl)
         # Create the Net.
         self.net = Net(ip=host, port=port, loop=self._event_loop, server=self._server)

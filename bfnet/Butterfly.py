@@ -28,7 +28,6 @@ class Butterfly(asyncio.Protocol):
         self.ip = None
         self.client_port = None
 
-        self.should_handle = False
         self.logger = logging.getLogger("ButterflyNet")
         self.logger.setLevel(self._handler.log_level)
 
@@ -49,7 +48,7 @@ class Butterfly(asyncio.Protocol):
         res = self._handler.on_connection(self)
 
         if asyncio.coroutines.iscoroutine(res):
-            yield from res
+            self._loop.create_task(res)
 
 
     def connection_lost(self, exc):
@@ -68,15 +67,7 @@ class Butterfly(asyncio.Protocol):
         # Call our handler.
         res = self._handler.on_disconnect(self)
         if asyncio.coroutines.iscoroutine(res):
-            yield from res
-
-
-    def flip_should_handle(self) -> bool:
-        """
-        Flip the set_handle boolean.
-        """
-        self.should_handle = not self.should_handle
-        return self.should_handle
+            self._loop.create_task(res)
 
 
     def data_received(self, data: bytes):
@@ -90,11 +81,7 @@ class Butterfly(asyncio.Protocol):
         """
         self.logger.debug("Recieved data: {}".format(data))
         self._streamreader.feed_data(data)
-        if self.should_handle:
-            self.flip_should_handle()
-            res = self._handler.net.handle(self)
-            if asyncio.iscoroutine(res):
-                yield from res
+
 
     def eof_received(self):
         """

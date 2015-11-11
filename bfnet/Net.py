@@ -7,6 +7,7 @@ import logging
 import types
 
 import re
+import warnings
 
 import Butterfly
 
@@ -66,34 +67,41 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
             if not data:
                 break
             else:
-                yield from self._default_handler(butterfly, data)
-
-    @asyncio.coroutine
-    def _default_handler(self, butterfly: Butterfly, data: bytes):
-        """
-        This is an example handler. It does nothing.
-        :param butterfly: The butterfly object.
-        :param data: The data to be passed in.
-        :return: Nothing
-        """
-        self.logger.warning("Uncollected message! {}".format(data))
-
-    @classmethod
-    def set_default_data_handler(cls, handler: types.FunctionType):
-        """
-        Set a new default data handler - one to be dropped to if nothing else matches.
-
-        By default this just passes.
-
-        This is a *classmethod* - this will set it on the class instead of the instance.
-        :param handler: Any callable to use as a handler.
-        """
-        cls._default_handler = handler
-
+                self.logger.debug("Handling data: {}".format(data))
+                # Loop over handlers.
+                for handler in self.handlers:
+                    # Check the match
+                    matched = handler(data)
+                    if matched is not None:
+                        print("Matched handler...")
+                        try:
+                            yield from matched(data, butterfly, self.bf_handler)
+                        except TypeError as e:
+                            print("Exception:", e, "Function:", matched, "Is none?", matched is not None)
+                        break
+                else:
+                    self.logger.debug("No valid handler")
 
     # Begin helper decorators
 
+    def any_data(self, func):
+        """
+        Decorator for ANY match.
+        :param func: The function to decorate.
+        :return: The same function.
+        """
+        def match(data: bytes):
+            return func
+        self.handlers.append(match)
+        return func
+
     def regexp_match(self, regexp: str):
+        """
+        Match data via a regular expression.
+
+        These are pre-compiled for speed.
+        :param regexp: The regexp string to match.
+        """
         # Real decorator here.
         def real_decorator(func: types.FunctionType):
             # Compile the regexp pattern.
@@ -117,6 +125,12 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
 
 
     def prefix_match(self, prefix: str, start=None, end=None):
+        """
+        Match data via a prefix.
+        :param prefix: The prefix for the data.
+        :param start: The start to search from.
+        :param end: The end to search to.
+        """
         def real_decorator(func: types.FunctionType):
             def match(data: bytes):
                 data = data.decode()
