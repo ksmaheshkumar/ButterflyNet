@@ -64,8 +64,8 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
         self.logger.debug("Dropped into default handler for new client")
         while True:
             data = yield from butterfly.read()
-            if not data:
-                break
+            if data is None or data == b'':
+                return
             else:
                 self.logger.debug("Handling data: {}".format(data))
                 # Loop over handlers.
@@ -73,14 +73,10 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
                     # Check the match
                     matched = handler(data)
                     if matched is not None:
-                        print("Matched handler...")
-                        try:
-                            yield from matched(data, butterfly, self.bf_handler)
-                        except TypeError as e:
-                            print("Exception:", e, "Function:", matched, "Is none?", matched is not None)
+                        yield from matched(data, butterfly, self.bf_handler)
                         break
                 else:
-                    self.logger.debug("No valid handler")
+                    self.logger.error("No valid handler")
 
     # Begin helper decorators
 

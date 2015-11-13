@@ -164,7 +164,6 @@ class ButterflyHandler(object):
         :return:
         """
         bf = Butterfly(loop=self._event_loop, bufsize=self._bufsize, handler=self)
-        print("New bf", bf)
         return bf
 
 
