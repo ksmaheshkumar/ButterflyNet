@@ -8,7 +8,6 @@ from bfnet.BFHandler import ButterflyHandler
 import asyncio
 
 
-
 logging.basicConfig(filename='/dev/null', level=logging.INFO)
 
 formatter = logging.Formatter('%(asctime)s - [%(levelname)s] %(name)s - %(message)s')
@@ -59,14 +58,13 @@ def main():
     my_handler = MyHandler.get_handler(loop=loop, log_level=logging.DEBUG)
     my_server = yield from my_handler.create_server(("127.0.0.1", 8001), ("localhost.crt", "server.key", None))
 
+
     # Define our simple coroutine for handling messages.
     @my_server.any_data
     @asyncio.coroutine
     def _handle_data(data: bytes, butterfly: Butterfly, handler: ButterflyHandler):
         # Echo messages to all other Butterflies.
-        handler.logger.debug("Handling chat message!")
         for bf in handler.butterflies.values():
-            handler.logger.debug("Telling butterfly: {}".format(bf))
             assert isinstance(bf, tuple), "bf should be a tuple -> {}".format(bf)
             if bf[0] != butterfly:
                 bf[0].write(butterfly.nick + b": " + data)
