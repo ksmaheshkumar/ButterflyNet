@@ -41,6 +41,11 @@ class ButterflyHandler(object):
     def __init__(self, event_loop: asyncio.AbstractEventLoop, ssl_context: ssl.SSLContext = None,
             loglevel: int = logging.DEBUG, buffer_size: int = asyncio.streams._DEFAULT_LIMIT):
         """
+        Create a new ButterflyHandler.
+
+        This class should not be called directly. Instead, use ButterflyHandler.get_handler() to
+        get a reference instead.
+
         :param event_loop: The :class:`asyncio.BaseEventLoop` to use for the server.
         :param ssl_context: The :class:`ssl.SSLContext` to use for the server.
         :param loglevel: The logging level to use.
@@ -95,6 +100,7 @@ class ButterflyHandler(object):
             bf[1].cancel()
             # Cancel the Butterfly.
             bf[0].stop()
+        self.net.stop()
 
 
     @asyncio.coroutine
@@ -148,7 +154,8 @@ class ButterflyHandler(object):
 
         This executor is by default a :class:`~concurrent.futures.ThreadPoolExecutor`.
         :param fun: The function to run async.
-            If you wish to pass parameters to this func, use functools.partial (https://docs.python.org/3/library/functools.html#functools.partial).
+            If you wish to pass parameters to this func, use
+            functools.partial (https://docs.python.org/3/library/functools.html#functools.partial).
         :return: A :class:`~asyncio.Future` object for the function.
         """
         future = self._event_loop.run_in_executor(self._executor, fun)
@@ -245,5 +252,6 @@ class ButterflyHandler(object):
         self.net = Net(ip=host, port=port, loop=self._event_loop, server=self._server)
         self.net._set_bf_handler(self)
         return self.net
+
 
 ButterflyHandler.get_handler.__annotations__['return'] = ButterflyHandler

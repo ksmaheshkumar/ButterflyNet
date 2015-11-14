@@ -12,14 +12,14 @@ consoleHandler = logging.StreamHandler()
 consoleHandler.setFormatter(formatter)
 root.addHandler(consoleHandler)
 
-from bfnet.BFHandler import ButterflyHandler
+import bfnet
 from bfnet import Net, Butterfly
 
 
 # Create your event loop.
 loop = asyncio.get_event_loop()
 
-my_handler = ButterflyHandler.get_handler(loop, log_level=logging.DEBUG, buffer_size=4096)
+my_handler = bfnet.get_handler(loop, log_level=logging.DEBUG, buffer_size=4096)
 
 
 @asyncio.coroutine
@@ -28,7 +28,7 @@ def main():
 
     @my_server.any_data
     @asyncio.coroutine
-    def echo(data: bytes, butterfly: Butterfly, handler: ButterflyHandler):
+    def echo(data: bytes, butterfly: Butterfly, handler: bfnet.ButterflyHandler):
         butterfly.write(data)
 
 

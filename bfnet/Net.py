@@ -56,12 +56,18 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
 
         self.logger = logging.getLogger("ButterflyNet")
 
-        self.logger.info("Net running on {}:{}.".format(ip, port))
+        self.logger.info("Net running on {}:{}. Press Ctrl+C to stop.".format(ip, port))
 
 
     def _set_bf_handler(self, handler):
         self.bf_handler = handler
 
+
+    def stop(self):
+        """
+        Stops the Net.
+        """
+        yield from self.server.wait_closed()
 
     @asyncio.coroutine
     def handle(self, butterfly: Butterfly):

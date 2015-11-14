@@ -64,3 +64,5 @@ server.key
 localhost.crt
 
 examples/aa.py
+
+site/
