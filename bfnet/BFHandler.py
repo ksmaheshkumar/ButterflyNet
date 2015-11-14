@@ -252,6 +252,8 @@ class ButterflyHandler(object):
         # Create the Net.
         self.net = Net(ip=host, port=port, loop=self._event_loop, server=self._server)
         self.net._set_bf_handler(self)
+        # Create a signal handler.
+        self._event_loop.add_signal_handler(15, self.stop)
         return self.net
 
 
