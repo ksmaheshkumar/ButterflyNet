@@ -20,6 +20,9 @@ from concurrent import futures
 import ssl
 import _ssl
 import types
+
+import sys
+
 from bfnet.Net import Net
 from bfnet.Butterfly import Butterfly
 import logging
@@ -253,7 +256,8 @@ class ButterflyHandler(object):
         self.net = Net(ip=host, port=port, loop=self._event_loop, server=self._server)
         self.net._set_bf_handler(self)
         # Create a signal handler.
-        self._event_loop.add_signal_handler(15, self.stop)
+        if sys.platform != "win32":
+            self._event_loop.add_signal_handler(15, self.stop)
         return self.net
 
 
