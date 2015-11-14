@@ -93,6 +93,7 @@ class ButterflyHandler(object):
         This will kill all handlers, disconnect all butterflies, and unbind the server.
         """
         self.logger.info("Stopping server.")
+        print("Stopping server.")
         # Loop over our Butterflies.
         for bf in self.butterflies:
             assert isinstance(bf, tuple), "bf should be a tuple (bf, fut) -> {}".format(bf)

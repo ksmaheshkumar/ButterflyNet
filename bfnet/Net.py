@@ -57,6 +57,7 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
         self.logger = logging.getLogger("ButterflyNet")
 
         self.logger.info("Net running on {}:{}. Press Ctrl+C to stop.".format(ip, port))
+        print("Net running on {}:{}. Press Ctrl+C to stop.".format(ip, port))
 
 
     def _set_bf_handler(self, handler):
