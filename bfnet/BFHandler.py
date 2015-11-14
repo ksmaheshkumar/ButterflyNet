@@ -64,6 +64,22 @@ class ButterflyHandler(object):
         self.butterflies = {}
 
 
+    def stop(self):
+        """
+        Stop a Net.
+
+        This will kill all handlers, disconnect all butterflies, and unbind the server.
+        """
+        self.logger.info("Stopping server.")
+        # Loop over our Butterflies.
+        for bf in self.butterflies:
+            assert isinstance(bf, tuple), "bf should be a tuple (bf, fut) -> {}".format(bf)
+            # Cancel the future.
+            bf[1].cancel()
+            # Cancel the Butterfly.
+            bf[0].stop()
+
+
     @asyncio.coroutine
     def on_connection(self, butterfly: Butterfly):
         """
@@ -120,6 +136,26 @@ class ButterflyHandler(object):
         """
         future = self._event_loop.run_in_executor(self._executor, fun)
         return future
+
+
+    def create_task(self, coro: types.FunctionType):
+        """
+        Create a new task on the event loop, and return the :class:`~asyncio.Future` created.
+        :param coro: A coroutine or future to add.
+        :return: The Future created.
+        """
+        future = self._event_loop.create_task(coro)
+        return future
+
+
+    def call_soon(self, coro: types.FunctionType, *args):
+        """
+        Call a coroutine or Future as soon as possible on the event loop.
+        :param coro: The coroutine or Future to call.
+        :param args: The arguments to the callback.
+        """
+        handle = self._event_loop.call_soon(coro, args)
+        return handle
 
 
     def set_executor(self, executor: futures.Executor):
@@ -192,3 +228,5 @@ class ButterflyHandler(object):
         self.net = Net(ip=host, port=port, loop=self._event_loop, server=self._server)
         self.net._set_bf_handler(self)
         return self.net
+
+ButterflyHandler.get_handler.__annotations__['return'] = ButterflyHandler

@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import ssl
 
 
 logging.basicConfig(filename='/dev/null', level=logging.INFO)
@@ -18,12 +19,12 @@ from bfnet import Net, Butterfly
 # Create your event loop.
 loop = asyncio.get_event_loop()
 
+my_handler = ButterflyHandler.get_handler(loop, log_level=logging.DEBUG, buffer_size=4096)
+
 
 @asyncio.coroutine
 def main():
-    my_handler = ButterflyHandler.get_handler(loop, log_level=logging.DEBUG, buffer_size=4096)
     my_server = yield from my_handler.create_server(("127.0.0.1", 8001), ("localhost.crt", "server.key", None))
-
 
     @my_server.any_data
     @asyncio.coroutine
@@ -36,4 +37,7 @@ if __name__ == '__main__':
     try:
         loop.run_forever()
     except KeyboardInterrupt:
-        exit(0)
+        # Close the server.
+        my_handler.stop()
+        loop.stop()
+

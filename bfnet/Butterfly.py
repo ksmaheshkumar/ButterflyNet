@@ -69,6 +69,12 @@ class Butterfly(asyncio.Protocol):
         if asyncio.coroutines.iscoroutine(res):
             self._loop.create_task(res)
 
+    def stop(self):
+        """
+        Kills the Butterfly by closing the transport.
+        """
+        self._transport.close()
+
 
     def data_received(self, data: bytes):
         """
