@@ -51,6 +51,8 @@ class MyHandler(ButterflyHandler):
             assert isinstance(bf, tuple)
             assert len(bf) == 2
             bf[1].cancel()
+        for bf, _ in self.butterflies.values():
+            bf.write(butterfly.nick + b" has left the room.\n")
 
 
 @asyncio.coroutine
