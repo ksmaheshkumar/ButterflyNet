@@ -9,7 +9,6 @@ setup(
     name='ButterflyNet',
     version='0.0.1',
     packages=['bfnet'],
-    package_dir={'': 'bfnet'},
     url='https://butterflynet.veriny.tf',
     license='AGPLv3',
     author='Isaac Dickinson',

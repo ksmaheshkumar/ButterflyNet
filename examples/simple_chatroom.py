@@ -1,7 +1,6 @@
 import logging
 import ssl
 import string
-
 from bfnet import Net
 from bfnet.Butterfly import Butterfly
 from bfnet.BFHandler import ButterflyHandler
