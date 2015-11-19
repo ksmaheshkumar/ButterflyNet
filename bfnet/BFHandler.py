@@ -77,6 +77,9 @@ class ButterflyHandler(object):
 
         self._bufsize = buffer_size
 
+        self.default_butterfly = Butterfly
+        self.default_net = Net
+
         self._executor = futures.ThreadPoolExecutor()
 
         self.net = None
@@ -224,10 +227,13 @@ class ButterflyHandler(object):
         """
         Create a new :class:`Butterfly` instance.
 
-        If you use a different Butterfly class, override this and return your own here.
+        This method will create a new Butterfly from the default Butterfly
+        creator specified by self.default_butterfly.
+
+        Override this if you use a different constructor in your Butterfly.
         :return:
         """
-        bf = Butterfly(loop=self._event_loop, bufsize=self._bufsize, handler=self)
+        bf = self.default_butterfly(loop=self._event_loop, bufsize=self._bufsize, handler=self)
         return bf
 
 
@@ -253,7 +259,8 @@ class ButterflyHandler(object):
         self._server = yield from self._event_loop.create_server(self.butterfly_factory, host=host, port=port,
             ssl=self._ssl)
         # Create the Net.
-        self.net = Net(ip=host, port=port, loop=self._event_loop, server=self._server)
+        # Use the default net.
+        self.net = self.default_net(ip=host, port=port, loop=self._event_loop, server=self._server)
         self.net._set_bf_handler(self)
         # Create a signal handler.
         if sys.platform != "win32":

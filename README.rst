@@ -1,7 +1,5 @@
-.. figure:: /docs/bnet.png
+.. figure:: https://butterflynet.veriny.tf/bnet.png
    :alt: ButterflyNet - Drawn by Tudor Iacobescu
-
-   ButterflyNet - Drawn by Tudor Iacobescu
 
 ButterflyNet is an server-side batteries-included secure networking
 framework built upon
