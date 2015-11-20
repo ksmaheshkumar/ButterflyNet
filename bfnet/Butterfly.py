@@ -52,9 +52,16 @@ class AbstractButterfly(asyncio.Protocol):
         Called upon a connection being made.
         :param transport: The transport created.
         """
+        super().connection_made(transport)
         self._transport = transport
         self.ip, self.client_port = transport.get_extra_info("peername")
         self.logger.info("Recieved connection from {}:{}".format(*transport.get_extra_info("peername")))
+
+        # Call our handler.
+        res = self._handler.on_connection(self)
+
+        if asyncio.coroutines.iscoroutine(res):
+            self._loop.create_task(res)
 
 
     def connection_lost(self, exc):
@@ -62,7 +69,14 @@ class AbstractButterfly(asyncio.Protocol):
         Called upon a connection being lost.
         :param exc: The exception data to use.
         """
+        super().connection_lost(exc)
         self.logger.info("Lost connection from {}:{}".format(self.ip, self.client_port))
+
+        # Call the handler.
+        res = self._handler.on_disconnect(self)
+        if asyncio.coroutines.iscoroutine(res):
+            self._loop.create_task(res)
+
 
 
     def stop(self):
@@ -121,14 +135,9 @@ class Butterfly(AbstractButterfly):
         This will automatically call your BFHandler.on_connection().
         :param transport: The transport to set the streamreader/streamwriter to.
         """
-        super().connection_made(transport)
         self._streamreader.set_transport(transport)
         self._streamwriter = asyncio.StreamWriter(transport, self, self._streamreader, self._loop)
-        # Call our handler.
-        res = self._handler.on_connection(self)
-
-        if asyncio.coroutines.iscoroutine(res):
-            self._loop.create_task(res)
+        super().connection_made(transport)
 
 
     def connection_lost(self, exc):
@@ -143,10 +152,6 @@ class Butterfly(AbstractButterfly):
         else:
             self._streamreader.set_exception(exc)
         super().connection_lost(exc)
-        # Call our handler.
-        res = self._handler.on_disconnect(self)
-        if asyncio.coroutines.iscoroutine(res):
-            self._loop.create_task(res)
 
 
     def data_received(self, data: bytes):
