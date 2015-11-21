@@ -1,3 +1,10 @@
 site_name: ButterflyNet
-theme_dir: 'docs/flatly'
+theme_dir: 'docs/material'
 copyright: These docs are licenced under a <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0 licence</a>.
+repo_name: GitHub
+repo_url: https://github.com/SunDwarf/ButterflyNet
+pages:
+  - Home: index.md
+  - Tutorials:
+    - First Server: tutorial/starting.md
+    - Porting to BFNet: tutorial/porting.md

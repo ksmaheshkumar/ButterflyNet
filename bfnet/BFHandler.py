@@ -15,17 +15,16 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import asyncio
-from concurrent import futures
-import ssl
 import _ssl
-import types
-
-import sys
-
-from bfnet.Net import Net
-from bfnet.Butterfly import Butterfly
+import asyncio
 import logging
+import ssl
+import sys
+import types
+from concurrent import futures
+
+from bfnet.Butterfly import Butterfly
+from bfnet.Net import Net
 
 
 class ButterflyHandler(object):
@@ -111,7 +110,6 @@ class ButterflyHandler(object):
         self._event_loop.stop()
 
 
-
     @asyncio.coroutine
     def on_connection(self, butterfly: Butterfly):
         """
@@ -172,6 +170,7 @@ class ButterflyHandler(object):
         future = self._event_loop.run_in_executor(self._executor, fun)
         return future
 
+
     def async_and_wait(self, fun: types.FunctionType):
         """
         Turns a blocking function into an async function by running it inside an executor. It then uses
@@ -185,6 +184,7 @@ class ButterflyHandler(object):
         """
         future = self.async_func(fun)
         return (yield from asyncio.wait_for(future, loop=self._event_loop))
+
 
     def create_task(self, coro: types.FunctionType):
         """
