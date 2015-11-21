@@ -49,9 +49,6 @@ class PacketHandler(ButterflyHandler):
         :return: Your packet class back.
         """
         # Get the ID.
-        if type(pack) != type:
-            # Idiot.
-            pack = pack.__class__
         id = pack.id
         self.packet_types[id] = pack
 

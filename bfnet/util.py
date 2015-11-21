@@ -70,6 +70,5 @@ def auto_infer_struct_pack(*args, pack: bool = False) -> str:
     if not pack:
         return fmt_string
     # Pack data.
-    print(fmt_string, _process_args(*args))
     s = struct.pack(fmt_string, *_process_args(*args))
     return s

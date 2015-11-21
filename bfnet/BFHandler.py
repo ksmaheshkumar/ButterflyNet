@@ -101,7 +101,7 @@ class ButterflyHandler(object):
         self.logger.info("Stopping server.")
         print("Stopping server.")
         # Loop over our Butterflies.
-        for bf in self.butterflies:
+        for _, bf in self.butterflies.items():
             assert isinstance(bf, tuple), "bf should be a tuple (bf, fut) -> {}".format(bf)
             # Cancel the future.
             bf[1].cancel()
@@ -139,6 +139,7 @@ class ButterflyHandler(object):
         s = "{}:{}".format(butterfly.ip, butterfly.client_port)
         if s in self.butterflies:
             bf = self.butterflies.pop(s)
+            print(bf)
             # These are here by default - don't call super() if you modify the butterfly dict!
             assert isinstance(bf, tuple)
             assert len(bf) == 2
@@ -152,7 +153,8 @@ class ButterflyHandler(object):
         This will schedule the Net's handle() coroutine to run soon.
         :return A Future object for the handle() coroutine.
         """
-        return self._event_loop.create_task(self.net.handle(butterfly))
+        res = self.net.handle(butterfly)
+        return self._event_loop.create_task(res)
 
 
     def async_func(self, fun: types.FunctionType) -> asyncio.Future:

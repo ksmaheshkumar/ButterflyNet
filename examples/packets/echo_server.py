@@ -47,7 +47,7 @@ class Packet0Echo(Packet):
         """
         Pack a new packet.
         """
-        return util.auto_infer_struct_pack(self.echo_length, self.data_to_echo, pack=True)
+        return self.autopack()
 
 
 @asyncio.coroutine
@@ -58,7 +58,6 @@ def main():
     @my_server.set_handler
     @asyncio.coroutine
     def handler(bf: PacketButterfly):
-        print("Reached handler")
         while True:
             echopacket = yield from bf.read()
             if not echopacket:

@@ -89,5 +89,4 @@ class PacketButterfly(AbstractButterfly):
         :param pack: The packet to write. This will automatically add a header.
         """
         header = self.unpacker.pack(b"BF", 1, pack.id)
-        print(header, pack.gen())
         self._transport.write(header + pack.gen())
