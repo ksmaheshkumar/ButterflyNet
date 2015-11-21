@@ -108,6 +108,8 @@ class ButterflyHandler(object):
             # Cancel the Butterfly.
             bf[0].stop()
         self.net.stop()
+        self._event_loop.stop()
+
 
 
     @asyncio.coroutine
