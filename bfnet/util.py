@@ -3,6 +3,7 @@ Misc utils for deep internal usage of Python.
 """
 import struct
 
+
 def infer_int_pack(arg) -> str:
     """
     Attempt to infer the correct struct format for an int.
@@ -22,8 +23,7 @@ def infer_int_pack(arg) -> str:
         raise OverflowError("Number {} too big to fit into a struct normally".format(arg))
 
 
-def auto_infer_struct_pack(*args,
-        pack: bool=False) -> str:
+def auto_infer_struct_pack(*args, pack: bool = False) -> str:
     """
     This will automatically attempt to infer the struct pack/unpack format string
     from the types of your arguments.
@@ -58,6 +58,3 @@ def auto_infer_struct_pack(*args,
     # Pack data.
     s = struct.pack(fmt_string, *args)
     return s
-
-
-
