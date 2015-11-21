@@ -16,11 +16,11 @@ class BasePacket(object):
     # This is ">" for network endianness by default.
     _endianness = ">"
 
-    def __init__(self):
+    def __init__(self, pbf):
         """
         Default init method.
         """
-        pass
+        self.butterfly = pbf
 
     def on_creation(self):
         """
@@ -44,12 +44,12 @@ class Packet(BasePacket):
     This extends from BasePacket, and adds useful details that you'll want to use.
     """
 
-    def __init__(self):
+    def __init__(self, pbf):
         """
         Create a new Packet type.
         :return:
         """
-        super().__init__()
+        super().__init__(pbf)
         self._original_data = b""
 
 

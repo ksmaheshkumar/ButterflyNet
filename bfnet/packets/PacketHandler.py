@@ -51,5 +51,24 @@ class PacketHandler(ButterflyHandler):
         """
         return PacketButterfly(self, self._event_loop)
 
+    def add_packet_type(self, pack: BasePacket):
+        """
+        Adds a new Packet type to your handler.
+
+        This can be used as a decorator or a normal method, as it returns the class.
+
+        Do NOT use on an instance of a class.
+        :param pack: The packet to use.
+        :return: Your packet class back.
+        """
+        # Get the ID.
+        if type(pack) != type:
+            # Idiot.
+            pack = pack.__class__
+        id = pack.id
+        self.packet_types[id] = pack
+
+        return pack
+
 
 
