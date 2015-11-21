@@ -172,6 +172,19 @@ class ButterflyHandler(object):
         future = self._event_loop.run_in_executor(self._executor, fun)
         return future
 
+    def async_and_wait(self, fun: types.FunctionType):
+        """
+        Turns a blocking function into an async function by running it inside an executor. It then uses
+        :func:`~asyncio.wait_for` to wait for the Future to complete.
+
+        This executor is by default a :class:`~concurrent.futures.ThreadPoolExecutor`.
+        :param fun: The function to run async.
+            If you wish to pass parameters to this func, use
+            functools.partial (https://docs.python.org/3/library/functools.html#functools.partial).
+        :return: The result of the function.
+        """
+        future = self.async_func(fun)
+        return (yield from asyncio.wait_for(future, loop=self._event_loop))
 
     def create_task(self, coro: types.FunctionType):
         """
