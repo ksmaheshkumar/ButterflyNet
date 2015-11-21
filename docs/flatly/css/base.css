@@ -111,3 +111,7 @@ div.source-links {
         width: 263px;
     }
 }
+
+pre {
+    padding: 5px 5px 5px 5px;
+}
