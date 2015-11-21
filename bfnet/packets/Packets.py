@@ -58,9 +58,18 @@ class Packet(BasePacket):
         Create a new Packet.
         :param data: The data to use.
             This data should have the PacketButterfly header stripped.
-        :return:
+        :return: A boolean, True if we need no more processing, and False if we process ourself.
         """
         self._original_data = data
+        self.unpack(data)
+        return True
+
+    def unpack(self, data: bytes) -> bool:
+        """
+        Unpack the data for the packet.
+        :return: A boolean, if it was unpacked.
+        """
+        return True
 
 
     def gen(self) -> bytes:
