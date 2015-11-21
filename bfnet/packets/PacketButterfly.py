@@ -1,8 +1,6 @@
 import asyncio
 import struct
-
 from bfnet.Butterfly import AbstractButterfly
-from bfnet.packets import Packet
 
 
 class PacketButterfly(AbstractButterfly):
@@ -23,9 +21,11 @@ class PacketButterfly(AbstractButterfly):
         # Create a new Packet queue.
         self.packet_queue = asyncio.Queue(loop=self._loop)
 
+
     @property
     def handler(self):
         return self._handler
+
 
     def data_received(self, data: bytes):
         """
@@ -55,8 +55,6 @@ class PacketButterfly(AbstractButterfly):
         # Get the packet, if possible.
         if id in self._handler.packet_types:
             packet_type = self._handler.packet_types[id]
-            assert isinstance(packet_type,
-                self._handler.basic_packet_type), "Packet should be similar to the normal packet type"
             packet = packet_type(self)
             created = packet.create(data[6:])
             if created:
@@ -65,17 +63,31 @@ class PacketButterfly(AbstractButterfly):
             self.logger.warning("Recieved unknown packet ID: {}".format(id))
 
 
-    def read(self) -> Packet:
+    def connection_lost(self, exc):
+        class FakeQueue(object):
+            def get(self):
+                return None
+
+            @asyncio.coroutine
+            def put(self):
+                return
+
+        self.packet_queue = FakeQueue()
+        super().connection_lost(exc)
+
+
+    def read(self):
         """
         Get a new packet off the Queue.
         """
         return (yield from self.packet_queue.get())
 
 
-    def write(self, pack: Packet):
+    def write(self, pack):
         """
         Write a packet to the client.
         :param pack: The packet to write. This will automatically add a header.
         """
-        header = self.unpacker.pack(b"BF" + pack.id.to_bytes(2, "big"))
+        header = self.unpacker.pack(b"BF", 1, pack.id)
+        print(header, pack.gen())
         self._transport.write(header + pack.gen())

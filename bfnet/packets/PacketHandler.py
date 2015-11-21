@@ -3,8 +3,8 @@ import logging
 import ssl
 
 from bfnet.BFHandler import ButterflyHandler
+from packets import PacketButterfly
 from .Packets import BasePacket
-from .PacketButterfly import PacketButterfly
 from .PacketNet import PacketNet
 
 
@@ -30,19 +30,6 @@ class PacketHandler(ButterflyHandler):
         # Define the default Net type.
         self.default_net = PacketNet
 
-    @asyncio.coroutine
-    def on_connection(self, butterfly: PacketButterfly):
-        """
-        on_connection but with a different annotation.
-        """
-        super().on_connection(butterfly)
-
-    @asyncio.coroutine
-    def on_disconnect(self, butterfly: PacketButterfly):
-        """
-        on_disconnect but with a different annotation.
-        """
-        super().on_connection(butterfly)
 
     def butterfly_factory(self):
         """

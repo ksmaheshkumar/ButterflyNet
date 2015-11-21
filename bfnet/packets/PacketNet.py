@@ -1,7 +1,6 @@
 import types
 
 from bfnet.Net import Net
-from bfnet.packets import PacketButterfly
 
 
 class PacketNet(Net):
@@ -14,7 +13,7 @@ class PacketNet(Net):
         # Set the real handler.
         self._real_handler = None
 
-    def handle(self, butterfly: PacketButterfly):
+    def handle(self, butterfly):
         """
         Stub method that calls your REAL handler.
 

@@ -23,6 +23,20 @@ def infer_int_pack(arg) -> str:
         raise OverflowError("Number {} too big to fit into a struct normally".format(arg))
 
 
+def _process_args(*args):
+    a = []
+    for arg in args:
+        if isinstance(arg, str):
+            for _ in arg:
+                a.append(_)
+        elif isinstance(arg, bytes):
+            for _ in arg:
+                a.append(_.to_bytes(1, "big"))
+        else:
+            a.append(arg)
+    return tuple(a)
+
+
 def auto_infer_struct_pack(*args, pack: bool = False) -> str:
     """
     This will automatically attempt to infer the struct pack/unpack format string
@@ -56,5 +70,6 @@ def auto_infer_struct_pack(*args, pack: bool = False) -> str:
     if not pack:
         return fmt_string
     # Pack data.
-    s = struct.pack(fmt_string, *args)
+    print(fmt_string, _process_args(*args))
+    s = struct.pack(fmt_string, *_process_args(*args))
     return s
