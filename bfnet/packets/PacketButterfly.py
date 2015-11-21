@@ -57,7 +57,7 @@ class PacketButterfly(AbstractButterfly):
             packet_type = self._handler.packet_types[id]
             assert isinstance(packet_type,
                 self._handler.basic_packet_type), "Packet should be similar to the normal packet type"
-            packet = packet_type()
+            packet = packet_type(self)
             created = packet.create(data[6:])
             if created:
                 self._loop.create_task(self.packet_queue.put(packet))
