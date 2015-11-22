@@ -1,8 +1,9 @@
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
-import sys
-if not sys.version_info >= (3, 4, 0):
-    sys.exit("Sorry, this library requires Python 3.4 or higher.")
+import sys, os
+
+if not os.environ.get("CIRCLE_USERNAME", None):
+    if not sys.version_info >= (3, 4, 0):
+        sys.exit("Sorry, this library requires Python 3.4 or higher.")
 
 
 setup(
