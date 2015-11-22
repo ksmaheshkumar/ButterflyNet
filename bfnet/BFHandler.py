@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import _ssl
 import asyncio
 import logging
+import multiprocessing
 import ssl
 import sys
 import types
@@ -79,7 +80,7 @@ class ButterflyHandler(object):
         self.default_butterfly = Butterfly
         self.default_net = Net
 
-        self._executor = futures.ThreadPoolExecutor()
+        self._executor = futures.ThreadPoolExecutor(max_workers=multiprocessing.cpu_count() * 2 + 1)
 
         self.net = None
         self.log_level = loglevel

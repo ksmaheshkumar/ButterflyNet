@@ -52,7 +52,7 @@ class Packet0Echo(Packet):
 
 @asyncio.coroutine
 def main():
-    my_server = yield from my_handler.create_server(("127.0.0.1", 8001), ("localhost.crt", "server.key", None))
+    my_server = yield from my_handler.create_server(("127.0.0.1", 8001), ("keys/test.crt", "keys/test.key", None))
 
 
     @my_server.set_handler

@@ -1,0 +1,6 @@
+dependencies:
+  override:
+    - pip install tox tox-pyenv
+    - pyenv install 3.4.3
+    - pyenv install 3.5.0
+    - pyenv local 3.4.3 3.5.0

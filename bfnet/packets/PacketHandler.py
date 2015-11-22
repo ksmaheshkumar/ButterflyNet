@@ -20,7 +20,7 @@ import logging
 import ssl
 
 from bfnet.BFHandler import ButterflyHandler
-from packets import PacketButterfly
+from bfnet.packets import PacketButterfly
 from .Packets import BasePacket
 from .PacketNet import PacketNet
 

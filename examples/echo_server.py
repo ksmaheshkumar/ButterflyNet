@@ -24,7 +24,7 @@ my_handler = bfnet.get_handler(loop, log_level=logging.DEBUG, buffer_size=4096)
 
 @asyncio.coroutine
 def main():
-    my_server = yield from my_handler.create_server(("127.0.0.1", 8001), ("localhost.crt", "server.key", None))
+    my_server = yield from my_handler.create_server(("127.0.0.1", 8001), ("keys/test.crt", "keys/test.key", None))
 
     @my_server.any_data
     @asyncio.coroutine
@@ -33,7 +33,7 @@ def main():
 
 
 if __name__ == '__main__':
-    asyncio.ensure_future(main())
+    loop.create_task(main())
     try:
         loop.run_forever()
     except KeyboardInterrupt:

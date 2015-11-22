@@ -1,5 +1,8 @@
 ![ButterflyNet - Drawn by Tudor Iacobescu](/docs/bnet.png)
 
+![https://img.shields.io/pypi/l/ButterflyNet.svg](https://img.shields.io/pypi/l/ButterflyNet.svg)
+![https://img.shields.io/pypi/dw/ButterflyNet.svg](https://img.shields.io/pypi/dw/ButterflyNet.svg)
+
 ButterflyNet is an server-side batteries-included secure networking framework built upon [asyncio](https://docs.python.org/3/library/asyncio.html). 
 
 All code in ButterflyNet is designed to be asynchronous by default, with special cases made for non-async code such as external libraries.  

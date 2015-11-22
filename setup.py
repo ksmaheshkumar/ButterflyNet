@@ -1,5 +1,5 @@
 from setuptools import setup
-
+from setuptools.command.test import test as TestCommand
 import sys
 if not sys.version_info >= (3, 4, 0):
     sys.exit("Sorry, this library requires Python 3.4 or higher.")
@@ -22,5 +22,7 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries"
-    ]
+    ],
+    tests_require=["pytest", "tox", "tox-pyenv"],
+    setup_requires=['pytest-runner'],
 )

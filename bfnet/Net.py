@@ -26,7 +26,7 @@ import types
 import re
 import warnings
 
-import Butterfly
+from bfnet import Butterfly
 
 
 class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad.
@@ -63,7 +63,7 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
     def _set_bf_handler(self, handler):
         self.bf_handler = handler
 
-
+    @asyncio.coroutine
     def stop(self):
         """
         Stops the Net.
