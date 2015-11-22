@@ -1,4 +1,4 @@
-dependency:
+dependencies:
   override:
     - pyenv local 3.4.3 3.5.0
     - pip install --upgrade tox
