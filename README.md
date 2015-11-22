@@ -1,5 +1,7 @@
 ![ButterflyNet - Drawn by Tudor Iacobescu](/docs/bnet.png)
 
+[![Build Status](https://img.shields.io/circleci/project/SunDwarf/ButterflyNet.svg)](https://circleci.com/gh/SunDwarf/ConfigMaster/)
+[![PyPI version](https://img.shields.io/pypi/v/ButterflyNet.svg)](https://pypi.python.org/pypi/ButterflyNet/)
 ![https://img.shields.io/pypi/l/ButterflyNet.svg](https://img.shields.io/pypi/l/ButterflyNet.svg)
 ![https://img.shields.io/pypi/dw/ButterflyNet.svg](https://img.shields.io/pypi/dw/ButterflyNet.svg)
 

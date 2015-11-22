@@ -1,6 +1,11 @@
 .. figure:: https://butterflynet.veriny.tf/bnet.png
    :alt: ButterflyNet - Drawn by Tudor Iacobescu
 
+
+|Build Status| |PyPI version|
+|https://img.shields.io/pypi/l/ButterflyNet.svg|
+|https://img.shields.io/pypi/dw/ButterflyNet.svg|
+
 ButterflyNet is an server-side batteries-included secure networking
 framework built upon
 `asyncio <https://docs.python.org/3/library/asyncio.html>`__.
@@ -48,3 +53,10 @@ connections, of which UDP has:
 
 This means ButterflyNet is locked to TCP for the future. OpenSSL *does*
 support DTLS, but no support for this is planned.
+
+.. |Build Status| image:: https://img.shields.io/circleci/project/SunDwarf/ButterflyNet.svg
+   :target: https://circleci.com/gh/SunDwarf/ConfigMaster/
+.. |PyPI version| image:: https://img.shields.io/pypi/v/ButterflyNet.svg
+   :target: https://pypi.python.org/pypi/ButterflyNet/
+.. |https://img.shields.io/pypi/l/ButterflyNet.svg| image:: https://img.shields.io/pypi/l/ButterflyNet.svg
+.. |https://img.shields.io/pypi/dw/ButterflyNet.svg| image:: https://img.shields.io/pypi/dw/ButterflyNet.svg
