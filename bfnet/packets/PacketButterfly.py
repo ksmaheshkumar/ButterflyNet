@@ -27,7 +27,6 @@ class PacketButterfly(AbstractButterfly):
     """
     unpacker = struct.Struct("!2shh")
 
-
     def __init__(self, handler, loop: asyncio.AbstractEventLoop, max_packets=0):
         """
         Create a new Packeted Butterfly.
@@ -38,11 +37,9 @@ class PacketButterfly(AbstractButterfly):
         # Create a new Packet queue.
         self.packet_queue = asyncio.Queue(loop=self._loop)
 
-
     @property
     def handler(self):
         return self._handler
-
 
     def data_received(self, data: bytes):
         """
@@ -79,7 +76,6 @@ class PacketButterfly(AbstractButterfly):
         else:
             self.logger.warning("Recieved unknown packet ID: {}".format(id))
 
-
     def connection_lost(self, exc):
         class FakeQueue(object):
             def get(self):
@@ -92,13 +88,11 @@ class PacketButterfly(AbstractButterfly):
         self.packet_queue = FakeQueue()
         super().connection_lost(exc)
 
-
     def read(self):
         """
         Get a new packet off the Queue.
         """
         return (yield from self.packet_queue.get())
-
 
     def write(self, pack):
         """

@@ -57,5 +57,3 @@ class PacketNet(Net):
         """
         self._real_handler = func
         return func
-
-

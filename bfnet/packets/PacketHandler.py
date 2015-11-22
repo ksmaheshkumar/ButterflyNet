@@ -34,9 +34,8 @@ class PacketHandler(ButterflyHandler):
     for easy OO-style networking information.
     """
 
-
-    def __init__(self, event_loop: asyncio.AbstractEventLoop, ssl_context: ssl.SSLContext = None,
-            loglevel: int = logging.DEBUG, buffer_size: int = asyncio.streams._DEFAULT_LIMIT):
+    def __init__(self, event_loop: asyncio.AbstractEventLoop, ssl_context: ssl.SSLContext=None,
+            loglevel: int=logging.DEBUG, buffer_size: int=asyncio.streams._DEFAULT_LIMIT):
         super().__init__(event_loop, ssl_context, loglevel, 0)
 
         # Define a new dict of Packet types.
@@ -46,7 +45,6 @@ class PacketHandler(ButterflyHandler):
 
         # Define the default Net type.
         self.default_net = PacketNet
-
 
     def butterfly_factory(self):
         """
@@ -70,6 +68,3 @@ class PacketHandler(ButterflyHandler):
         self.packet_types[id] = pack
 
         return pack
-
-
-

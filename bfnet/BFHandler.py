@@ -23,7 +23,6 @@ import ssl
 import sys
 import types
 from concurrent import futures
-
 from bfnet.Butterfly import Butterfly
 from bfnet.Net import Net
 
@@ -40,9 +39,8 @@ class ButterflyHandler(object):
     """
     instance = None
 
-
-    def __init__(self, event_loop: asyncio.AbstractEventLoop, ssl_context: ssl.SSLContext = None,
-            loglevel: int = logging.DEBUG, buffer_size: int = asyncio.streams._DEFAULT_LIMIT):
+    def __init__(self, event_loop: asyncio.AbstractEventLoop, ssl_context: ssl.SSLContext=None,
+            loglevel: int=logging.DEBUG, buffer_size: int=asyncio.streams._DEFAULT_LIMIT):
         """
         Create a new ButterflyHandler.
 
@@ -91,7 +89,6 @@ class ButterflyHandler(object):
 
         self.butterflies = {}
 
-
     def stop(self):
         """
         Stop a Net.
@@ -110,7 +107,6 @@ class ButterflyHandler(object):
         self.net.stop()
         self._event_loop.stop()
 
-
     @asyncio.coroutine
     def on_connection(self, butterfly: Butterfly):
         """
@@ -125,7 +121,6 @@ class ButterflyHandler(object):
         handler = self.begin_handling(butterfly)
         # Create a new entry in our butterfly table.
         self.butterflies["{}:{}".format(butterfly.ip, butterfly.client_port)] = (butterfly, handler)
-
 
     @asyncio.coroutine
     def on_disconnect(self, butterfly: Butterfly):
@@ -146,7 +141,6 @@ class ButterflyHandler(object):
             assert len(bf) == 2
             bf[1].cancel()
 
-
     def begin_handling(self, butterfly: Butterfly):
         """
         Begin the handler loop and start handling data that flows in.
@@ -156,7 +150,6 @@ class ButterflyHandler(object):
         """
         res = self.net.handle(butterfly)
         return self._event_loop.create_task(res)
-
 
     def async_func(self, fun: types.FunctionType) -> asyncio.Future:
         """
@@ -170,7 +163,6 @@ class ButterflyHandler(object):
         """
         future = self._event_loop.run_in_executor(self._executor, fun)
         return future
-
 
     def async_and_wait(self, fun: types.FunctionType):
         """
@@ -186,7 +178,6 @@ class ButterflyHandler(object):
         future = self.async_func(fun)
         return (yield from asyncio.wait_for(future, loop=self._event_loop))
 
-
     def create_task(self, coro: types.FunctionType):
         """
         Create a new task on the event loop, and return the :class:`~asyncio.Future` created.
@@ -195,7 +186,6 @@ class ButterflyHandler(object):
         """
         future = self._event_loop.create_task(coro)
         return future
-
 
     def call_soon(self, coro: types.FunctionType, *args):
         """
@@ -206,14 +196,12 @@ class ButterflyHandler(object):
         handle = self._event_loop.call_soon(coro, args)
         return handle
 
-
     def set_executor(self, executor: futures.Executor):
         """
         Set the default executor for use with async_func.
         :param executor: A :class:`~concurrent.futures.Executor` to set as the executor.
         """
         self._executor = executor
-
 
     def _load_ssl(self, ssl_options: tuple):
         """
@@ -224,10 +212,9 @@ class ButterflyHandler(object):
         """
         self._ssl.load_cert_chain(certfile=ssl_options[0], keyfile=ssl_options[1], password=ssl_options[2])
 
-
     @classmethod
-    def get_handler(cls, loop: asyncio.AbstractEventLoop = None, ssl_context: ssl.SSLContext = None,
-            log_level: int = logging.INFO, buffer_size: int = asyncio.streams._DEFAULT_LIMIT):
+    def get_handler(cls, loop: asyncio.AbstractEventLoop, ssl_context: ssl.SSLContext=None,
+            log_level: int=logging.INFO, buffer_size: int=asyncio.streams._DEFAULT_LIMIT):
         """
         Get the instance of the handler currently running.
 
@@ -239,7 +226,6 @@ class ButterflyHandler(object):
         if not cls.instance:
             cls.instance = cls(loop, ssl_context, log_level, buffer_size)
         return cls.instance
-
 
     def butterfly_factory(self):
         """
@@ -253,7 +239,6 @@ class ButterflyHandler(object):
         """
         bf = self.default_butterfly(loop=self._event_loop, bufsize=self._bufsize, handler=self)
         return bf
-
 
     @asyncio.coroutine
     def create_server(self, bind_options: tuple, ssl_options: tuple) -> Net:

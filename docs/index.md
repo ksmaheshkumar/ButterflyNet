@@ -1,6 +1,6 @@
 #### ![ButterflyNet - Drawn by Tudor Iacobescu](/bnet.png)
 
-ButterflyNet is an server-side batteries-included secure networking framework built upon [asyncio](https://docs.python.org/3/library/asyncio.html). 
+ButterflyNet is a server-side batteries-included secure networking framework built upon [asyncio](https://docs.python.org/3/library/asyncio.html). 
 
 All code in ButterflyNet is designed to be asynchronous by default, with special cases made for non-async code such as external libraries.  
 Because of the heavy usage of asyncio, this module does not officially support Python versions before 3.4. It may be possible to run it with a backported tulip library, but no official support will be given for this.

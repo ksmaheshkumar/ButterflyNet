@@ -26,7 +26,6 @@ class _MetaPacket(type):
     This Metaclass exists only to prepare an ordered dict.
     """
 
-
     @classmethod
     def __prepare__(mcs, name, bases):
         return collections.OrderedDict()
@@ -47,20 +46,17 @@ class BasePacket(object, metaclass=_MetaPacket):
     # This is ">" for network endianness by default.
     _endianness = ">"
 
-
     def __init__(self, pbf):
         """
         Default init method.
         """
         self.butterfly = pbf
 
-
     def on_creation(self):
         """
         Called just after your packet object is created.
         """
         pass
-
 
     def create(self, data: bytes):
         """
@@ -69,7 +65,6 @@ class BasePacket(object, metaclass=_MetaPacket):
         :return: If the creation succeeded or not.
         """
         self.on_creation()
-
 
     def autopack(self) -> bytes:
         """
@@ -105,7 +100,6 @@ class Packet(BasePacket):
     This extends from BasePacket, and adds useful details that you'll want to use.
     """
 
-
     def __init__(self, pbf):
         """
         Create a new Packet type.
@@ -113,7 +107,6 @@ class Packet(BasePacket):
         """
         super().__init__(pbf)
         self._original_data = b""
-
 
     def create(self, data: bytes) -> bool:
         """
@@ -126,14 +119,12 @@ class Packet(BasePacket):
         self.unpack(data)
         return True
 
-
     def unpack(self, data: bytes) -> bool:
         """
         Unpack the data for the packet.
         :return: A boolean, if it was unpacked.
         """
         return True
-
 
     def gen(self) -> bytes:
         """

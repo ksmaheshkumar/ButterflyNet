@@ -8,3 +8,4 @@ pages:
   - Tutorials:
     - First Server: tutorial/starting.md
     - Porting to BFNet: tutorial/porting.md
+    - Chat Server: tutorial/chat_server.md

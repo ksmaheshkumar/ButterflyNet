@@ -24,7 +24,8 @@ my_handler = bfnet.get_handler(loop, log_level=logging.DEBUG, buffer_size=4096)
 
 @asyncio.coroutine
 def main():
-    my_server = yield from my_handler.create_server(("127.0.0.1", 8001), ("keys/test.crt", "keys/test.key", None))
+    my_server = yield from my_handler.\
+        create_server(("127.0.0.1", 8001), ("keys/test.crt", "keys/test.key", None))
 
     @my_server.any_data
     @asyncio.coroutine

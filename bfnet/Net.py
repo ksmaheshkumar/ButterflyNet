@@ -16,15 +16,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import asyncio
-# import bfnet.structures
-
-
-# Python 3.4 compatibility code.
 import logging
 import types
-
 import re
-import warnings
 
 from bfnet import Butterfly
 
@@ -34,13 +28,13 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
     A Net is an object that catches :class:`Butterfly` connections that happen to wander in to your net.
     """
 
-
-    def __init__(self, ip: str, port: int, loop: asyncio.AbstractEventLoop = None,
-            server: asyncio.AbstractServer = None):
+    def __init__(self, ip: str, port: int, loop: asyncio.AbstractEventLoop=None,
+            server: asyncio.AbstractServer=None):
         """
         Create a new :class:`Net` object.
 
-        This should not be called directly - instead use :func:`bfnet.structures.ButterflyHandler.create_server` to create a server.
+        This should not be called directly - instead use :func:`bfnet.structures.ButterflyHandler.create_server`
+        to create a server.
         :param ip: The IP to bind on.
         :param port: The port to use.
         :param loop: The event loop to use.
@@ -59,7 +53,6 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
         self.logger.info("Net running on {}:{}. Press Ctrl+C to stop.".format(ip, port))
         print("Net running on {}:{}. Press Ctrl+C to stop.".format(ip, port))
 
-
     def _set_bf_handler(self, handler):
         self.bf_handler = handler
 
@@ -75,7 +68,8 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
         """
         Default handler.
 
-        This, by default, distributes the incoming data around into handlers. After failing these, it will drop down to `default_data` handler.
+        This, by default, distributes the incoming data around into handlers.
+        After failing these, it will drop down to `default_data` handler.
         :param butterfly: The butterfly to use for handling.
         """
         # Enter an infinite loop.
@@ -130,13 +124,10 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
                 else:
                     return None
 
-
             self.handlers.append(match)
             return func
 
-
         return real_decorator
-
 
     def prefix_match(self, prefix: str, start=None, end=None):
         """
@@ -152,7 +143,6 @@ class Net(....__class__.__class__.__base__):  # you are ugly and should feel bad
                     return func
                 else:
                     return None
-
 
             self.handlers.append(match)
             return func

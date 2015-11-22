@@ -27,7 +27,6 @@ class AbstractButterfly(asyncio.Protocol):
     of default information.
     """
 
-
     def __init__(self, handler, loop: asyncio.AbstractEventLoop):
         """
         Create a new Butterfly.
@@ -46,7 +45,6 @@ class AbstractButterfly(asyncio.Protocol):
         self.logger = logging.getLogger("ButterflyNet")
         self.logger.setLevel(self._handler.log_level)
 
-
     def connection_made(self, transport: asyncio.Transport):
         """
         Called upon a connection being made.
@@ -63,7 +61,6 @@ class AbstractButterfly(asyncio.Protocol):
         if asyncio.coroutines.iscoroutine(res):
             self._loop.create_task(res)
 
-
     def connection_lost(self, exc):
         """
         Called upon a connection being lost.
@@ -76,8 +73,6 @@ class AbstractButterfly(asyncio.Protocol):
         res = self._handler.on_disconnect(self)
         if asyncio.coroutines.iscoroutine(res):
             self._loop.create_task(res)
-
-
 
     def stop(self):
         """
@@ -113,7 +108,6 @@ class Butterfly(AbstractButterfly):
     This will automatically call the appropriate methods in your handler, and set information about ourselves.
     """
 
-
     def __init__(self, handler, bufsize, loop: asyncio.AbstractEventLoop):
         """
         Create a new butterfly.
@@ -127,7 +121,6 @@ class Butterfly(AbstractButterfly):
 
         self._bufsize = bufsize
 
-
     def connection_made(self, transport: asyncio.Transport):
         """
         Called upon a connection being made.
@@ -138,7 +131,6 @@ class Butterfly(AbstractButterfly):
         self._streamreader.set_transport(transport)
         self._streamwriter = asyncio.StreamWriter(transport, self, self._streamreader, self._loop)
         super().connection_made(transport)
-
 
     def connection_lost(self, exc):
         """
@@ -153,12 +145,12 @@ class Butterfly(AbstractButterfly):
             self._streamreader.set_exception(exc)
         super().connection_lost(exc)
 
-
     def data_received(self, data: bytes):
         """
         Called upon data received.
 
-        This will only automatically call your Net.handle() method IF your `should_handle` attribute on the butterfly is True.
+        This will only automatically call your Net.handle() method IF
+        your `should_handle` attribute on the butterfly is True.
 
         Otherwise, it will simply pass your data into the StreamReader.
         :param data: The data to handle.
@@ -166,14 +158,12 @@ class Butterfly(AbstractButterfly):
         self.logger.debug("Recieved data: {}".format(data))
         self._streamreader.feed_data(data)
 
-
     def eof_received(self):
         """
         Called upon EOF recieved.
         """
         self._streamreader.feed_eof()
         return True
-
 
     @asyncio.coroutine
     def read(self) -> bytes:
@@ -183,14 +173,12 @@ class Butterfly(AbstractButterfly):
         """
         return (yield from self._streamreader.read(self._bufsize))
 
-
     @asyncio.coroutine
     def drain(self):
         """
         Drain the writer.
         """
         return (yield from self._streamwriter.drain())
-
 
     def write(self, data: bytes):
         """

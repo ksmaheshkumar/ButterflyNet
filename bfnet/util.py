@@ -54,7 +54,7 @@ def _process_args(*args):
     return tuple(a)
 
 
-def auto_infer_struct_pack(*args, pack: bool = False) -> str:
+def auto_infer_struct_pack(*args, pack: bool=False) -> str:
     """
     This will automatically attempt to infer the struct pack/unpack format string
     from the types of your arguments.
